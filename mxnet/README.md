@@ -1,4 +1,4 @@
-# Mxnet implementation for DenseNet
+# MXNet implementation for DenseNet
 
 This repository contains the code for [Densely Connected Convolutional Networks](http://arxiv.org/abs/1608.06993). 
 
