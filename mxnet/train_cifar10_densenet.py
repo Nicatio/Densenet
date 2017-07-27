@@ -4,8 +4,8 @@ References:
 Gao Huang, Zhuang Liu, Kilian Q. Weinberger, Laurens van der Maaten. "Densely Connected Convolutional Networks"
 '''
 from __future__ import division
-import find_mxnet
-assert find_mxnet
+#import find_mxnet
+#assert find_mxnet
 import mxnet as mx
 import argparse
 import os
@@ -189,7 +189,7 @@ class Nesterov(mx.optimizer.SGD):
         if self.clip_gradient is not None:
             grad = mx.nd.clip(grad, -self.clip_gradient, self.clip_gradient)
 
-        if state:
+        if state[0] is not None:
             mom = state
             mom *= self.momentum
             grad += wd * weight
@@ -222,7 +222,7 @@ class Nesterov(mx.optimizer.SGD):
             ) or 'proj' in n or 'zscore' in n:
                 self.wd_mult[n] = 0.0
         if self.sym is not None:
-            attr = self.sym.list_attr(recursive=True)
+            attr = self.sym.attr_dict()
             for k, v in attr.items():
                 if k.endswith('_wd_mult'):
                     self.wd_mult[k[:-len('_wd_mult')]] = float(v)
@@ -243,7 +243,7 @@ class Nesterov(mx.optimizer.SGD):
             if 'proj' in n or 'zscore' in n:
                 self.lr_mult[n] = 0.0
         if self.sym is not None:
-            attr = self.sym.list_attr(recursive=True)
+            attr = self.sym.attr_dict()
             for k, v in attr.items():
                 if k.endswith('_lr_mult'):
                     self.lr_mult[k[:-len('_lr_mult')]] = float(v)

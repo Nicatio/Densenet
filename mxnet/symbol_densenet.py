@@ -3,8 +3,8 @@ References:
 
 Gao Huang, Zhuang Liu, Kilian Q. Weinberger, Laurens van der Maaten. "Densely Connected Convolutional Networks"
 '''
-import find_mxnet
-assert find_mxnet
+#import find_mxnet
+#assert find_mxnet
 import mxnet as mx
 
 
@@ -12,6 +12,7 @@ def add_layer(
     x,
     num_channel,
     name,
+    pad=1,
     kernel_size=3,
     dropout=0.,
     l2_reg=1e-4):
@@ -24,7 +25,7 @@ def add_layer(
         num_filter=num_channel,
         kernel=(kernel_size, kernel_size),
         stride=(1, 1),
-        pad=(1, 1),
+        pad=(pad, pad),
         no_bias=True
     )
     if dropout > 0:
@@ -41,7 +42,7 @@ def dense_block(
 
     for i in range(num_layers):
         out = add_layer(x, growth_rate, name=name + '_layer_'+str(i), dropout=dropout, l2_reg=l2_reg)
-        x = mx.symbol.Concat(x, out, name=name+'_concat')
+        x = mx.symbol.Concat(x, out, name=name+'_concat_'+str(i))
 
     return x
 
@@ -52,7 +53,7 @@ def transition_block(
     dropout=0.,
     l2_reg=1e-4):
 
-    x = add_layer(x, num_channel, name = name, kernel_size=1, dropout=dropout, l2_reg=l2_reg)
+    x = add_layer(x, num_channel, name = name, pad=0, kernel_size=1, dropout=dropout, l2_reg=l2_reg)
     x = mx.symbol.Pooling(x, name = name + '_pool', global_pool = False, kernel = (2,2), stride = (2,2), pool_type = 'avg')
     return x
 
@@ -78,6 +79,8 @@ def get_symbol(
         pad=(1, 1),
         no_bias=True
     )
+
+    #conv = mx.symbol.Pooling(conv, name='conv0_pool', global_pool=False, kernel=(3,3), stride=(2,2), pool_type ='max')
 
     for i in range(num_block - 1):
         conv = dense_block(conv, num_layer, growth_rate, name = 'dense'+str(i)+'_',
